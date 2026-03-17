@@ -1,0 +1,191 @@
+// ============================================================
+//  data.js — 所有个人信息集中在这里，修改内容只需改这个文件
+// ============================================================
+
+const SITE = {
+  // ---- 基本信息 ----
+  name: "Ruijie Jiang",
+  shortName: "R. Jiang",
+  title: "Senior Machine Learning Engineer",
+  badge: "Open to collaborations",
+  heroDesc:
+    "Senior Machine Learning Engineer at LinkedIn Premium AI team. " +
+    "Ph.D. from Tufts University (2024). " +
+    "My research focuses on contrastive representation learning, knowledge distillation, and LLMs. " +
+    "I build scalable ML systems for ads ranking, pricing, domain adaptation, and LLM distillation.",
+
+  // ---- 联系方式 ----
+  email: "ruijie.jiang@example.com",         // TODO: 换成真实邮箱
+  github: "https://github.com/ruijiejiang",
+  linkedin: "https://www.linkedin.com/in/ruijie-jiang/",
+  scholar: "https://scholar.google.com/citations?user=dXgr0nsAAAAJ&hl=en&oi=ao",
+
+  // ---- 工作经历 ----
+  experience: [
+    {
+      org: "LinkedIn",
+      role: "Senior Machine Learning Engineer",
+      date: "2024 - Present",
+      tag: "Current",
+      tagColor: "blue",
+      desc: "Premium AI team. Working on ads ranking, pricing optimization, domain adaptation, and LLM distillation. Published research on delta knowledge distillation and scalable LLM distillation (LANTERN) while at LinkedIn.",
+    },
+    {
+      org: "Tufts University",
+      role: "Ph.D. Researcher — Machine Learning",
+      date: "2018 - 2024",
+      tag: "Ph.D.",
+      tagColor: "purple",
+      desc: "Research in contrastive representation learning, optimal transport, and hard negative sampling. Published in TMLR and top ML venues. Developed novel frameworks for representation learning with provable geometric guarantees.",
+    },
+  ],
+
+  // ---- 教育背景 ----
+  education: [
+    {
+      org: "Tufts University",
+      degree: "Ph.D. in Computer Science — Machine Learning",
+      date: "2018 - 2024 · Medford, MA",
+      tag: "Ph.D.",
+      tagColor: "green",
+      desc: "Specialization in contrastive representation learning, optimal transport, and knowledge distillation. 100+ citations.",
+    },
+  ],
+
+  // ---- 技术栈 ----
+  skills: [
+    {
+      icon: "🧠",
+      category: "Machine Learning",
+      items: ["PyTorch", "Contrastive Learning", "Knowledge Distillation", "LLMs", "NLP", "Optimal Transport", "Deep Learning"],
+    },
+    {
+      icon: "💻",
+      category: "Programming",
+      items: ["Python", "Java", "Scala", "SQL", "C++"],
+    },
+    {
+      icon: "🛠",
+      category: "Infrastructure",
+      items: ["Kubernetes", "Spark", "Docker", "AWS", "Git", "Distributed Training"],
+    },
+  ],
+
+  // ---- 论文发表 ----
+  publications: [
+    {
+      title: "Delta Knowledge Distillation for Large Language Models",
+      authors: "<strong>R. Jiang</strong>, et al.",
+      venue: "LinkedIn, 2025",
+      link: "",
+    },
+    {
+      title: "LANTERN: Scalable Distillation of Large Language Models for Job-Person Fit and Explanation",
+      authors: "<strong>R. Jiang</strong>, et al.",
+      venue: "LinkedIn, 2025",
+      link: "",
+    },
+    {
+      title: "Hard-Negative Sampling for Contrastive Learning: Optimal Representation Geometry and Neural-vs Dimensional-Collapse",
+      authors: "<strong>R. Jiang</strong>, et al.",
+      venue: "TMLR",
+      link: "",
+    },
+    {
+      title: "On Neural Collapse in Contrastive Learning with Imbalanced Datasets",
+      authors: "<strong>R. Jiang</strong>, et al.",
+      venue: "Machine Learning",
+      link: "",
+    },
+    {
+      title: "Hard Negative Sampling via Regularized Optimal Transport for Contrastive Representation Learning",
+      authors: "<strong>R. Jiang</strong>, et al.",
+      venue: "Machine Learning",
+      link: "",
+    },
+    {
+      title: "Supervised Contrastive Learning with Hard Negative Samples",
+      authors: "<strong>R. Jiang</strong>, et al.",
+      venue: "Machine Learning",
+      link: "",
+    },
+    {
+      title: "Measure Estimation in the Barycentric Coding Model",
+      authors: "<strong>R. Jiang</strong>, et al.",
+      venue: "Machine Learning",
+      link: "",
+    },
+    {
+      title: "Systematic Comparison of Semi-supervised and Self-supervised Learning for Medical Image Classification",
+      authors: "<strong>R. Jiang</strong>, et al.",
+      venue: "Machine Learning",
+      link: "",
+    },
+    {
+      title: "Interpretable Contrastive Word Mover's Embedding",
+      authors: "<strong>R. Jiang</strong>, et al.",
+      venue: "NLP",
+      link: "",
+    },
+    {
+      title: "Automatic Coding of Students' Writing via Contrastive Representation Learning in the Wasserstein Space",
+      authors: "<strong>R. Jiang</strong>, et al.",
+      venue: "Education & ML",
+      link: "",
+    },
+    {
+      title: "Scalable Machine Learning Approach to Classifying Transportation Noise at Two Urban Sites in Greater Boston",
+      authors: "<strong>R. Jiang</strong>, et al.",
+      venue: "Environmental Science",
+      link: "",
+    },
+    {
+      title: "Analyzing Students' Written Arguments by Combining Qualitative and Computational Approaches",
+      authors: "<strong>R. Jiang</strong>, et al.",
+      venue: "Education Research",
+      link: "",
+    },
+    {
+      title: "Machine Learning Analysis of Student Frames in Open-Structure Lab Courses",
+      authors: "<strong>R. Jiang</strong>, et al.",
+      venue: "Education Research",
+      link: "",
+    },
+  ],
+
+  // ---- 新闻动态 ----
+  news: [
+    { date: "2025-03", text: "Promoted to Senior Machine Learning Engineer at LinkedIn!" },
+    { date: "2025-01", text: 'Paper "Delta Knowledge Distillation for Large Language Models" released.' },
+    { date: "2024-12", text: 'Received [In]finity & Beyond Award at LinkedIn for organizational impact.' },
+    { date: "2024-05", text: "Completed Ph.D. at Tufts University!" },
+    { date: "2024-01", text: "Joined LinkedIn as Machine Learning Engineer on the Premium AI team." },
+    // 添加更多新闻：{ date: "YYYY-MM", text: "..." }
+  ],
+
+  // ---- 学术博客 ----
+  // 每篇博客是一个对象，包含标题、日期、标签、摘要
+  // 详细内容放在 posts/ 文件夹下的单独 HTML 文件中
+  blogPosts: [
+    // 示例条目 — 替换成你自己的读论文笔记
+    {
+      title: "Understanding Neural Collapse in Contrastive Learning",
+      date: "2025-03-15",
+      tags: ["Contrastive Learning", "Theory"],
+      summary: "A deep dive into why neural collapse occurs in contrastive learning and its implications for representation quality in imbalanced datasets.",
+      link: "posts/neural-collapse.html", // 指向详细博客页面（可选）
+    },
+    {
+      title: "Knowledge Distillation for LLMs: A Survey",
+      date: "2025-02-20",
+      tags: ["LLM", "Distillation"],
+      summary: "Summarizing recent advances in distilling large language models, covering delta distillation, task-specific methods, and scalability challenges.",
+      link: "",
+    },
+    // 添加更多博客：复制上面的对象格式
+  ],
+
+  // ---- 日夜模式时间段 (24h) ----
+  dayStart: 6,
+  dayEnd: 18,
+};
