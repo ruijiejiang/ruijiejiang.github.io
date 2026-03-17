@@ -128,14 +128,17 @@ function renderSkills(containerId) {
 function renderPublications(containerId) {
   const pubList = $(containerId);
   if (!pubList) return;
-  SITE.publications.forEach(p => {
+  SITE.publications.forEach((p, i) => {
     const titleHtml = p.link
       ? `<a href="${p.link}" target="_blank">${p.title}</a>`
       : p.title;
     pubList.appendChild(el('div', 'pub-item', `
-      <div class="pub-title">${titleHtml}</div>
-      <div class="pub-authors">${p.authors}</div>
-      <div class="pub-venue">${p.venue}</div>
+      <div class="pub-num">[${i + 1}]</div>
+      <div class="pub-content">
+        <div class="pub-title">${titleHtml}</div>
+        <div class="pub-authors">${p.authors}</div>
+        <div class="pub-venue">${p.venue}</div>
+      </div>
     `));
   });
 }
@@ -147,19 +150,25 @@ function renderBlog(containerId, postPrefix) {
   if (SITE.blogPosts.length === 0) {
     grid.appendChild(el('p', 'blog-empty', 'Coming soon...'));
   } else {
-    SITE.blogPosts.forEach(post => {
+    // Sort by date descending
+    const sorted = [...SITE.blogPosts].sort((a, b) => b.date.localeCompare(a.date));
+    sorted.forEach(post => {
       const link = post.link ? (pfx + post.link) : '';
       const titleHtml = link
         ? `<a href="${link}">${post.title}</a>`
         : post.title;
       const tagsHtml = post.tags.map(t => `<span class="blog-tag">${t}</span>`).join('');
+      const readmore = link ? `<a href="${link}" class="blog-card-readmore">Read more →</a>` : '';
       grid.appendChild(el('div', 'blog-card', `
-        <div class="blog-card-title">${titleHtml}</div>
-        <div class="blog-card-meta">
-          <span>${post.date}</span>
-          <div class="blog-card-tags">${tagsHtml}</div>
+        <div class="blog-card-date-col">${post.date}</div>
+        <div class="blog-card-content">
+          <div class="blog-card-title">${titleHtml}</div>
+          <div class="blog-card-meta">
+            <div class="blog-card-tags">${tagsHtml}</div>
+          </div>
+          <div class="blog-card-summary">${post.summary}</div>
+          ${readmore}
         </div>
-        <div class="blog-card-summary">${post.summary}</div>
       `));
     });
   }
