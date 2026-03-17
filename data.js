@@ -202,11 +202,11 @@ const SITE = {
       link: "posts/hard-scl.html",
     },
     {
-      title: "Knowledge Distillation for LLMs: A Survey",
-      date: "2025-02-20",
-      tags: ["LLM", "Distillation"],
-      summary: "Summarizing recent advances in distilling large language models, covering delta distillation, task-specific methods, and scalability challenges.",
-      link: "",
+      title: "Delta Knowledge Distillation for Large Language Models",
+      date: "2025-09-18",
+      tags: ["LLM", "Knowledge Distillation", "NLP"],
+      summary: "Instead of forcing a small student to match a large teacher's output, Delta-KD teaches the student to replicate the teacher's behavioral transformation during SFT. A parallelogram relationship in log-probability space, with consistent wins over Forward KL, Reverse KL, SeqKD, and MiniLLM.",
+      link: "posts/delta-kd.html",
     },
     // 添加更多博客：复制上面的对象格式
   ],

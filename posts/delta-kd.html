@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delta Knowledge Distillation for Large Language Models — R. Jiang</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+  <style>
+    .post { max-width: 740px; margin: 0 auto; padding: 40px 24px 80px; position: relative; z-index: 1; }
+    .post-back { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); text-decoration: none; font-size: 14px; margin-bottom: 32px; }
+    .post-back:hover { text-decoration: underline; }
+    .post-title { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.25; margin-bottom: 16px; }
+    .post-meta { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .post-tags { display: flex; gap: 6px; margin-bottom: 32px; }
+    .post-tag { font-size: 11px; padding: 2px 8px; background: rgba(59,130,246,0.1); color: var(--accent); border-radius: 4px; font-family: 'JetBrains Mono', monospace; }
+    .post-body { font-size: 15px; line-height: 1.8; color: var(--text); }
+    .post-body h2 { font-size: 22px; font-weight: 600; margin: 40px 0 16px; letter-spacing: -0.01em; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .post-body h3 { font-size: 17px; font-weight: 600; margin: 28px 0 12px; }
+    .post-body p { margin-bottom: 16px; color: var(--text-muted); }
+    .post-body strong { color: var(--text); }
+    .post-body ul, .post-body ol { margin: 0 0 16px 24px; color: var(--text-muted); }
+    .post-body li { margin-bottom: 6px; }
+    .post-body code { font-family: 'JetBrains Mono', monospace; font-size: 13px; background: var(--skill-tag-bg); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; }
+    .post-body blockquote { border-left: 3px solid var(--accent); margin: 20px 0; padding: 12px 20px; background: var(--bg-card); border-radius: 0 8px 8px 0; font-style: italic; color: var(--text-muted); }
+    .post-body .theorem { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin: 20px 0; }
+    .post-body .theorem-label { font-weight: 600; color: var(--accent); margin-bottom: 8px; font-size: 14px; }
+    .post-body .takeaway { background: var(--accent-glow); border: 1px solid var(--accent-border); border-radius: 10px; padding: 20px 24px; margin: 24px 0; }
+    .post-body .takeaway-title { font-weight: 600; color: var(--accent); margin-bottom: 8px; font-size: 14px; }
+    .post-body .katex-display { margin: 20px 0; overflow-x: auto; }
+    .post-body table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+    .post-body th, .post-body td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+    .post-body th { color: var(--text); font-weight: 600; background: var(--bg-card); }
+    .post-body td { color: var(--text-muted); }
+    .post-body tr.highlight td { color: var(--accent); font-weight: 600; }
+    .post-nav { display: flex; justify-content: space-between; margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--border); }
+    .post-nav a { color: var(--accent); text-decoration: none; font-size: 14px; }
+    .post-nav a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="glow-orb glow-1"></div>
+  <div class="glow-orb glow-2"></div>
+
+  <article class="post">
+    <a href="../pages/blog.html" class="post-back">← Back to blog</a>
+
+    <h1 class="post-title">Delta Knowledge Distillation for Large Language Models</h1>
+    <div class="post-meta">
+      <span>Ruijie Jiang</span>
+      <span>·</span>
+      <span>September 2025</span>
+      <span>·</span>
+      <span>10 min read</span>
+    </div>
+    <div class="post-tags">
+      <span class="post-tag">LLM</span>
+      <span class="post-tag">Knowledge Distillation</span>
+      <span class="post-tag">NLP</span>
+      <span class="post-tag">LinkedIn</span>
+    </div>
+
+    <div class="post-body">
+      <p>
+        This post covers our paper <strong>"Delta Knowledge Distillation for Large Language Models"</strong> (Cao, Kang, Xing, Jiang, 2025). The core question: <strong>when distilling a large language model into a smaller one, should the student try to match the teacher's absolute output — or should it learn the teacher's behavioral transformation?</strong>
+      </p>
+
+      <h2>1. The Problem with Standard KD</h2>
+      <p>
+        Knowledge distillation (KD) for LLMs typically works by minimizing the KL divergence between the teacher's output distribution and the student's output distribution at each token:
+      </p>
+
+      $$\mathcal{L}_{\text{KD}} = \mathbb{E}\left[D_{\text{KL}}\left(\pi_t(\cdot | x) \;\|\; \pi_\theta(\cdot | x)\right)\right]$$
+
+      <p>
+        This implicitly assumes that the student and teacher operate in the <strong>same representation space</strong> — that the student can, in principle, match the teacher's output distribution. But when compressing a 7B-parameter model into a 1.5B model, this assumption breaks down. The student simply doesn't have enough capacity to replicate the teacher's exact behavior.
+      </p>
+
+      <div class="takeaway">
+        <div class="takeaway-title">The Capacity Mismatch Problem</div>
+        <p>Forcing a small student to match a large teacher's absolute distribution is like asking a sketch artist to replicate a photograph pixel-by-pixel. Instead, the student should learn the <strong>essence of what changed</strong> during the teacher's training.</p>
+      </div>
+
+      <h2>2. The Delta-KD Idea</h2>
+      <p>
+        Instead of matching the teacher's output directly, Delta-KD asks: <strong>what distributional shift did the teacher undergo during supervised fine-tuning (SFT)?</strong> Then it constructs a synthetic target that applies an analogous shift to the student's starting point.
+      </p>
+      <p>
+        We have four distributions available:
+      </p>
+      <ul>
+        <li>$\pi_s^{\text{raw}}(y|x)$ — student before fine-tuning (small pretrained model)</li>
+        <li>$\pi_t^{\text{raw}}(y|x)$ — teacher before fine-tuning (large pretrained model)</li>
+        <li>$\pi_t^{\text{ft}}(y|x)$ — teacher after fine-tuning (large fine-tuned model)</li>
+        <li>$\pi_s^*(y|x)$ — the optimal student target (what we want to approximate)</li>
+      </ul>
+
+      <h3>The Core Principle</h3>
+      <p>
+        Define a <strong>shift operator</strong> $\Delta(p_1, p_2) = p_1(y|x) / p_2(y|x)$ that captures the relative change between two distributions. The key insight:
+      </p>
+
+      $$\Delta(\pi_s^*, \pi_t^{\text{ft}})(y|x) \propto \Delta(\pi_s^{\text{raw}}, \pi_t^{\text{raw}})(y|x)^\alpha$$
+
+      <p>
+        In words: the shift from the optimal student to the fine-tuned teacher should be proportional to the shift from the raw student to the raw teacher. This is a <strong>parallelogram relationship</strong> in log-probability space — the teacher's SFT transformation is transferred to the student, adjusted for capacity differences via the scaling factor $\alpha$.
+      </p>
+
+      <h2>3. The Delta-KD Loss</h2>
+      <p>
+        Solving for the optimal student target $\pi_s^*$ gives:
+      </p>
+
+      $$\pi_s^*(y_t | x) = \frac{1}{Z(x, y_{&lt;t})} \cdot \pi_t^{\text{ft}}(y_t | x) \cdot \left(\frac{\pi_s^{\text{raw}}(y_t | x)}{\pi_t^{\text{raw}}(y_t | x)}\right)^\alpha$$
+
+      <p>
+        where $Z(x, y_{&lt;t})$ is a token-level normalization constant. The Delta-KD loss then distills into this synthetic target:
+      </p>
+
+      $$\mathcal{L}_{\text{Delta-KD}} = \mathbb{E}\left[D_{\text{KL}}\left(\pi_s^*(\cdot | x) \;\|\; \pi_\theta(\cdot | x)\right)\right]$$
+
+      <p>
+        The final training objective combines this with standard SFT:
+      </p>
+
+      $$\mathcal{L}_{\text{total}} = \lambda \cdot \mathcal{L}_{\text{SFT}} + (1 - \lambda) \cdot \mathcal{L}_{\text{Delta-KD}}$$
+
+      <div class="theorem">
+        <div class="theorem-label">Intuition: Why Delta Works</div>
+        <p>Standard KD says: "student, become the teacher." Delta-KD says: "student, <em>change the same way</em> the teacher changed." The latter is achievable even when the student is much smaller, because it only needs to replicate a <em>relative transformation</em>, not an absolute distribution.</p>
+      </div>
+
+      <h2>4. Scalable Training Architecture</h2>
+      <p>
+        Delta-KD requires running <strong>three models simultaneously</strong> during training: $\pi_s^{\text{raw}}$, $\pi_t^{\text{raw}}$, and $\pi_t^{\text{ft}}$ (plus the student being trained). This creates GPU memory challenges. The paper introduces a <strong>decoupled inference-training architecture</strong>:
+      </p>
+      <ul>
+        <li><strong>Teacher models</strong> run as standalone inference services on dedicated GPUs</li>
+        <li><strong>Student training</strong> communicates with teachers via <strong>ZeroMQ sockets</strong></li>
+        <li>Logits are transferred through <strong>shared memory</strong> in FP16 format</li>
+        <li>Eliminates costly offline precomputation while avoiding memory overflow</li>
+      </ul>
+      <p>
+        This is trained on 8 NVIDIA H100 GPUs — a practical setup for production environments at LinkedIn.
+      </p>
+
+      <h2>5. Experimental Results</h2>
+      <p>
+        Experiments distill <strong>Qwen-2.5-7B → Qwen-2.5-1.5B</strong> on two benchmarks:
+      </p>
+
+      <h3>UltraChat-200k (Instruction Following)</h3>
+      <table>
+        <tr><th>Method</th><th>ROUGE-1</th><th>ROUGE-2</th><th>ROUGE-L</th></tr>
+        <tr><td>SFT (no distillation)</td><td>0.4049</td><td>0.1830</td><td>0.2478</td></tr>
+        <tr><td>Forward KL</td><td>0.5146</td><td>0.2477</td><td>0.3325</td></tr>
+        <tr><td>Reverse KL</td><td>0.5070</td><td>0.2397</td><td>0.3301</td></tr>
+        <tr><td>SeqKD</td><td>0.5150</td><td>0.2502</td><td>0.3348</td></tr>
+        <tr><td>MiniLLM</td><td>0.5211</td><td>0.2491</td><td>0.3347</td></tr>
+        <tr class="highlight"><td>Delta-KD</td><td>0.5407</td><td>0.2599</td><td>0.3425</td></tr>
+        <tr><td style="color:var(--text-muted);font-style:italic">Teacher (7B)</td><td style="font-style:italic">0.5726</td><td style="font-style:italic">0.2974</td><td style="font-style:italic">0.3707</td></tr>
+      </table>
+      <p>
+        Delta-KD beats the best baseline (MiniLLM) by <strong>+2.0 ROUGE-1</strong> and closes the gap to the teacher significantly. Compared to vanilla SFT, the improvement is <strong>+13.6 ROUGE-1</strong>.
+      </p>
+
+      <h3>OpenMathReasoning (Math Reasoning)</h3>
+      <table>
+        <tr><th>Method</th><th>ROUGE-1</th><th>ROUGE-2</th><th>ROUGE-L</th></tr>
+        <tr><td>SFT</td><td>0.4531</td><td>0.2137</td><td>0.2305</td></tr>
+        <tr><td>Forward KL</td><td>0.4768</td><td>0.2327</td><td>0.2386</td></tr>
+        <tr><td>Reverse KL</td><td>0.4757</td><td>0.2314</td><td>0.2377</td></tr>
+        <tr><td>SeqKD</td><td>0.4829</td><td>0.2389</td><td>0.2482</td></tr>
+        <tr><td>MiniLLM</td><td>0.4197</td><td>0.1843</td><td>0.2240</td></tr>
+        <tr class="highlight"><td>Delta-KD</td><td>0.5125</td><td>0.2664</td><td>0.2465</td></tr>
+      </table>
+      <p>
+        On math reasoning, Delta-KD dominates even more — <strong>+3.6 ROUGE-1</strong> over Forward KL, and <strong>+9.3 points</strong> over MiniLLM (which struggles on this domain).
+      </p>
+
+      <h2>6. The Parallelogram Framework</h2>
+      <p>
+        The paper explores a generalized <strong>Parallelogram Loss</strong> framework with 8 variants (V1-V8), combining different choices of student distributions, starting points, and shift terms. Key findings:
+      </p>
+      <ul>
+        <li><strong>V1 (standard Delta-KD)</strong> and <strong>V6</strong> perform best (~0.54 ROUGE-1 on UltraChat)</li>
+        <li>Half the variants (V3, V5, V7, V8) diverge during training due to <strong>excessive gradient norm growth</strong> — when gradients flow through the shift terms, they can explode</li>
+        <li>The stable variants are those where the shift term is treated as a <strong>fixed constant</strong> (no gradient), not a differentiable quantity</li>
+      </ul>
+
+      <div class="takeaway">
+        <div class="takeaway-title">Practical Insight</div>
+        <p>Not all parallelogram configurations work. The key to stability is treating the distribution shift ratio $(\pi_s^{\text{raw}} / \pi_t^{\text{raw}})^\alpha$ as a <strong>detached constant</strong> during backpropagation. Letting gradients flow through this term causes divergence.</p>
+      </div>
+
+      <h2>7. Why This Matters for Production LLMs</h2>
+      <p>
+        At LinkedIn, we deploy LLMs at massive scale for recommendations, ads, and search. Serving a 7B model per request is prohibitively expensive. Knowledge distillation into smaller models (1.5B, 500M) is essential. Delta-KD provides:
+      </p>
+      <ul>
+        <li><strong>Better quality</strong> at the same model size — more teacher knowledge preserved</li>
+        <li><strong>Principled framework</strong> — not just a heuristic, but grounded in the parallelogram relationship</li>
+        <li><strong>Scalable training</strong> — the decoupled architecture handles multi-model training on standard GPU clusters</li>
+        <li><strong>Domain generality</strong> — works on both instruction-following and math reasoning, suggesting broad applicability</li>
+      </ul>
+
+      <h2>8. Key Takeaways</h2>
+
+      <div class="takeaway">
+        <div class="takeaway-title">Summary</div>
+        <ul>
+          <li><strong>Don't match the teacher's output</strong> — instead, match the teacher's <em>behavioral transformation</em> during SFT</li>
+          <li><strong>The delta formulation</strong> $\pi_s^* \propto \pi_t^{\text{ft}} \cdot (\pi_s^{\text{raw}} / \pi_t^{\text{raw}})^\alpha$ elegantly accounts for capacity mismatch</li>
+          <li><strong>Consistent wins</strong> over Forward KL, Reverse KL, SeqKD, and MiniLLM on both instruction-following and reasoning tasks</li>
+          <li><strong>Scaling factor</strong> $\alpha$ and <strong>loss weight</strong> $\lambda$ provide tunable knobs for different teacher-student size ratios</li>
+          <li><strong>Stability matters:</strong> detach the shift ratio from the computation graph to avoid gradient explosion</li>
+        </ul>
+      </div>
+
+      <h2>References</h2>
+      <ul>
+        <li>Cao, Y., Kang, Y., Xing, Z., & Jiang, R. (2025). Delta Knowledge Distillation for Large Language Models. <a href="https://arxiv.org/abs/2509.14526" style="color:var(--accent)">arXiv:2509.14526</a></li>
+        <li>Hinton, G., Vinyals, O., & Dean, J. (2015). Distilling the Knowledge in a Neural Network.</li>
+        <li>Gu, Y., et al. (2024). MiniLLM: Knowledge Distillation of Large Language Models. <em>ICLR</em>.</li>
+        <li>Kim, Y. & Rush, A. M. (2016). Sequence-Level Knowledge Distillation. <em>EMNLP</em>.</li>
+      </ul>
+
+      <div class="post-nav">
+        <a href="hard-scl.html">← H-SCL paper</a>
+        <a href="../pages/blog.html">All posts →</a>
+      </div>
+    </div>
+  </article>
+
+  <script>
+    const saved = sessionStorage.getItem('theme');
+    const hour = new Date().getHours();
+    const isDay = saved !== null ? saved === 'day' : (hour >= 6 && hour < 18);
+    document.documentElement.setAttribute('data-theme', isDay ? 'day' : 'night');
+  </script>
+</body>
+</html>
