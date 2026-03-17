@@ -195,6 +195,13 @@ const SITE = {
       link: "posts/neural-collapse.html",
     },
     {
+      title: "Supervised Contrastive Learning with Hard Negative Samples",
+      date: "2024-05-10",
+      tags: ["Contrastive Learning", "Hard Negatives", "Supervised Learning"],
+      summary: "How combining label information with hard-negative sampling creates a more effective contrastive learning method. We introduce H-SCL, prove that H-UCL upper bounds H-SCL, and show consistent gains on image and graph benchmarks.",
+      link: "posts/hard-scl.html",
+    },
+    {
       title: "Knowledge Distillation for LLMs: A Survey",
       date: "2025-02-20",
       tags: ["LLM", "Distillation"],

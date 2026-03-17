@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supervised Contrastive Learning with Hard Negative Samples — R. Jiang</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+  <style>
+    .post { max-width: 740px; margin: 0 auto; padding: 40px 24px 80px; position: relative; z-index: 1; }
+    .post-back { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); text-decoration: none; font-size: 14px; margin-bottom: 32px; }
+    .post-back:hover { text-decoration: underline; }
+    .post-title { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.25; margin-bottom: 16px; }
+    .post-meta { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .post-tags { display: flex; gap: 6px; margin-bottom: 32px; }
+    .post-tag { font-size: 11px; padding: 2px 8px; background: rgba(59,130,246,0.1); color: var(--accent); border-radius: 4px; font-family: 'JetBrains Mono', monospace; }
+    .post-body { font-size: 15px; line-height: 1.8; color: var(--text); }
+    .post-body h2 { font-size: 22px; font-weight: 600; margin: 40px 0 16px; letter-spacing: -0.01em; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .post-body h3 { font-size: 17px; font-weight: 600; margin: 28px 0 12px; }
+    .post-body p { margin-bottom: 16px; color: var(--text-muted); }
+    .post-body strong { color: var(--text); }
+    .post-body ul, .post-body ol { margin: 0 0 16px 24px; color: var(--text-muted); }
+    .post-body li { margin-bottom: 6px; }
+    .post-body code { font-family: 'JetBrains Mono', monospace; font-size: 13px; background: var(--skill-tag-bg); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; }
+    .post-body blockquote { border-left: 3px solid var(--accent); margin: 20px 0; padding: 12px 20px; background: var(--bg-card); border-radius: 0 8px 8px 0; font-style: italic; color: var(--text-muted); }
+    .post-body .theorem { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin: 20px 0; }
+    .post-body .theorem-label { font-weight: 600; color: var(--accent); margin-bottom: 8px; font-size: 14px; }
+    .post-body .takeaway { background: var(--accent-glow); border: 1px solid var(--accent-border); border-radius: 10px; padding: 20px 24px; margin: 24px 0; }
+    .post-body .takeaway-title { font-weight: 600; color: var(--accent); margin-bottom: 8px; font-size: 14px; }
+    .post-body .katex-display { margin: 20px 0; overflow-x: auto; }
+    .post-nav { display: flex; justify-content: space-between; margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--border); }
+    .post-nav a { color: var(--accent); text-decoration: none; font-size: 14px; }
+    .post-nav a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="glow-orb glow-1"></div>
+  <div class="glow-orb glow-2"></div>
+
+  <article class="post">
+    <a href="../pages/blog.html" class="post-back">← Back to blog</a>
+
+    <h1 class="post-title">Supervised Contrastive Learning with Hard Negative Samples</h1>
+    <div class="post-meta">
+      <span>Ruijie Jiang</span>
+      <span>·</span>
+      <span>May 10, 2024</span>
+      <span>·</span>
+      <span>10 min read</span>
+    </div>
+    <div class="post-tags">
+      <span class="post-tag">Contrastive Learning</span>
+      <span class="post-tag">Hard Negatives</span>
+      <span class="post-tag">Supervised Learning</span>
+      <span class="post-tag">Representation Learning</span>
+    </div>
+
+    <div class="post-body">
+      <p>
+        This post walks through our paper <strong>"Supervised Contrastive Learning with Hard Negative Samples"</strong> (Jiang, Nguyen, Ishwar, Aeron, 2024). The central idea: <strong>what happens when you combine label information with hard-negative sampling in contrastive learning?</strong> The answer turns out to be both theoretically elegant and practically powerful.
+      </p>
+
+      <h2>1. Motivation</h2>
+      <p>
+        Contrastive learning has two main flavors: <strong>unsupervised (UCL)</strong>, which treats all other samples as negatives, and <strong>supervised (SCL)</strong>, which uses labels to ensure only different-class samples serve as negatives. Meanwhile, <strong>hard-negative mining</strong> — focusing on the most confusing negatives — has been shown to dramatically improve learning efficiency.
+      </p>
+      <p>
+        But here's the gap: prior work on hard negatives (like H-UCL from Robinson et al.) operates without labels, which means it can accidentally treat same-class samples as hard negatives — the infamous <strong>false negative problem</strong>. Standard SCL uses labels but treats all negatives equally, wasting effort on easy negatives that provide little learning signal.
+      </p>
+
+      <div class="takeaway">
+        <div class="takeaway-title">The Key Insight</div>
+        <p>H-SCL is the first method to jointly leverage <strong>label information</strong> (to avoid false negatives) and <strong>hard-negative sampling</strong> (to focus on informative negatives). It gets the best of both worlds.</p>
+      </div>
+
+      <h2>2. The Four Contrastive Variants</h2>
+      <p>
+        To understand H-SCL, it helps to see it in the context of four contrastive learning variants:
+      </p>
+      <ul>
+        <li><strong>UCL</strong> — random negatives, no labels</li>
+        <li><strong>SCL</strong> — label-filtered negatives (only different-class), no hardening</li>
+        <li><strong>H-UCL</strong> — hardened negatives, no labels (suffers from false negatives)</li>
+        <li><strong>H-SCL</strong> — hardened + label-filtered negatives (our method)</li>
+      </ul>
+      <p>
+        The relationships form a 2×2 grid: one axis is "use labels or not", the other is "use hardening or not". H-SCL occupies the optimal corner.
+      </p>
+
+      <h2>3. How H-SCL Works</h2>
+
+      <h3>3.1 The Hardening Function</h3>
+      <p>
+        A <strong>hardening function</strong> $\eta: \mathbb{R} \to \mathbb{R}$ is any nonnegative, nondecreasing function. It reweights the negative sampling distribution to favor samples that are more similar to the anchor in representation space. Two concrete choices:
+      </p>
+      <ul>
+        <li><strong>Exponential:</strong> $\eta_{\text{exp}}(t) = e^{\beta t}$ where $\beta > 0$ — smoothly upweights harder negatives</li>
+        <li><strong>Threshold:</strong> $\eta_{\text{thresh}}(t) = \mathbf{1}(e^t \geq \tau)$ — binary filter keeping only the hardest negatives</li>
+      </ul>
+
+      <h3>3.2 The H-SCL Sampling Distribution</h3>
+      <p>
+        H-SCL draws negatives from a distribution that combines label filtering with hardening:
+      </p>
+
+      $$q_{\text{H-SCL}}(x^- | x, f) = \frac{\mathbf{1}(y(x^-) \neq y(x)) \cdot \eta(g(x, x^-)) \cdot q_{\text{UCL}}(x^-)}{\alpha_{\text{H-SCL}}(x, f)}$$
+
+      <p>
+        where $g(x, x^-) = f(x)^\top f(x^-) / \gamma$ is the normalized similarity. This distribution has three components:
+      </p>
+      <ol>
+        <li>$\mathbf{1}(y(x^-) \neq y(x))$ — <strong>label filter</strong>: only consider samples from different classes</li>
+        <li>$\eta(g(x, x^-))$ — <strong>hardening</strong>: upweight negatives that are closer in representation space</li>
+        <li>$\alpha_{\text{H-SCL}}$ — normalization constant</li>
+      </ol>
+
+      <div class="takeaway">
+        <div class="takeaway-title">Intuition</div>
+        <p>Think of it as a two-stage filter: first remove same-class samples (avoid false negatives), then focus on the remaining negatives that the model finds most confusing (maximize learning signal).</p>
+      </div>
+
+      <h2>4. Main Theoretical Result</h2>
+
+      <p>
+        The paper's central theoretical contribution relates the losses of H-SCL and H-UCL. First, we need an assumption about the quality of representations:
+      </p>
+
+      <div class="theorem">
+        <div class="theorem-label">Assumption 1 — Good Representation Quality</div>
+        <p>For hard-to-distinguish samples, collision samples (same class as anchor) have higher expected similarity than true negatives (different class):</p>
+        $$\mathbb{E}[e^{g(x, x^-)} \mid x^- \sim q_{\text{Hcol}}] \geq \mathbb{E}[e^{g(x, x^-)} \mid x^- \sim q_{\text{H-SCL}}]$$
+        <p>This says: among the hard samples, same-class ones are on average more similar to the anchor than different-class ones. This is naturally satisfied when representations have reasonable quality.</p>
+      </div>
+
+      <div class="theorem">
+        <div class="theorem-label">Lemma 1 — H-UCL Upper Bounds H-SCL</div>
+        <p>Under Assumption 1, in the infinite negative sample limit:</p>
+        $$\mathcal{L}_{\text{H-UCL}}^{(\infty)}(f) \geq \mathcal{L}_{\text{H-SCL}}^{(\infty)}(f)$$
+        <p>The H-UCL loss is always at least as large as the H-SCL loss.</p>
+      </div>
+
+      <p>
+        Why does this matter? It tells us that <strong>minimizing H-UCL implicitly minimizes an upper bound on H-SCL</strong>. Since H-SCL is the "ideal" loss (using labels + hardening), this explains why H-UCL works well in practice even without labels — it's optimizing a bound on the quantity we really care about.
+      </p>
+
+      <h3>Proof Sketch</h3>
+      <p>
+        The key decomposition splits the H-UCL normalization constant into two parts:
+      </p>
+      $$\alpha_{\text{H-UCL}}(x, f) = \alpha_{\text{H-SCL}}(x, f) + \alpha_{\text{Hcol}}(x, f)$$
+      <p>
+        The H-UCL expectation is then a mixture of contributions from true negatives (H-SCL part) and collisions (same-class part). Assumption 1 ensures the collision contribution <em>increases</em> the loss, establishing the inequality.
+      </p>
+
+      <h2>5. Experimental Results</h2>
+
+      <h3>5.1 Image Classification</h3>
+      <p>
+        On standard benchmarks (STL-10, CIFAR-10, CIFAR-100), H-SCL consistently outperforms SCL:
+      </p>
+      <ul>
+        <li><strong>CIFAR-100:</strong> H-SCL achieves ~73% accuracy vs. SCL ~70% — a significant 3-point gain</li>
+        <li><strong>Threshold hardening</strong> $\eta_{\text{thresh}}(\tau)$ and <strong>exponential hardening</strong> $\eta_{\text{exp}}(\beta)$ both show consistent improvements</li>
+        <li>Improvements hold across different hyperparameter settings</li>
+      </ul>
+
+      <h3>5.2 Verifying the Theory</h3>
+      <p>
+        The experiments validate both the assumption and the theorem:
+      </p>
+      <ul>
+        <li><strong>Assumption 1 verification:</strong> The fraction of anchors satisfying the assumption increases during training (60-70% by end), confirming representations become "good" as training progresses</li>
+        <li><strong>Loss inequality:</strong> $\mathcal{L}_{\text{H-SCL}} < \mathcal{L}_{\text{H-UCL}}$ holds consistently throughout training, validating Lemma 1</li>
+      </ul>
+
+      <h3>5.3 Beyond Vision: Graph Datasets</h3>
+      <p>
+        H-SCL benefits extend beyond image classification to graph-structured data, demonstrating the generality of the approach across different domains and data modalities.
+      </p>
+
+      <h2>6. Practical Takeaways</h2>
+
+      <div class="takeaway">
+        <div class="takeaway-title">When to Use H-SCL</div>
+        <ul>
+          <li><strong>You have labels</strong> — H-SCL requires class labels to filter false negatives</li>
+          <li><strong>Large batch sizes</strong> — The theoretical guarantees strengthen with more negatives; use large batches (256+)</li>
+          <li><strong>Choosing hardening:</strong> Start with exponential ($\beta = 1$) for smooth hardening, or threshold ($\tau = e^{-0.5}$) for aggressive filtering</li>
+          <li><strong>Multi-class problems</strong> — The biggest gains appear on fine-grained tasks (CIFAR-100 > CIFAR-10) where hard negatives matter most</li>
+        </ul>
+      </div>
+
+      <h2>7. Connection to Our Later Work</h2>
+      <p>
+        This paper laid the foundation for our subsequent TMLR paper, <a href="neural-collapse.html" style="color:var(--accent)">"Hard-Negative Sampling for Contrastive Learning: Optimal Representation Geometry and Neural- vs Dimensional-Collapse"</a>, which takes the next step: proving that H-SCL losses are minimized by <strong>Neural Collapse</strong> geometry, and showing that hard negatives help representations converge to this optimal structure. Together, these two papers provide a complete picture:
+      </p>
+      <ol>
+        <li><strong>This paper:</strong> H-SCL outperforms SCL; H-UCL bounds H-SCL (the "why it works")</li>
+        <li><strong>TMLR paper:</strong> The optimal geometry is Neural Collapse for all variants; hard negatives + normalization achieve it in practice (the "what it converges to")</li>
+      </ol>
+
+      <h2>8. Summary</h2>
+      <ul>
+        <li><strong>H-SCL</strong> = labels + hard negatives — the best of both worlds</li>
+        <li><strong>Avoids false negatives</strong> that plague H-UCL while focusing on informative negatives that SCL ignores</li>
+        <li><strong>Theoretically justified:</strong> H-UCL loss upper bounds H-SCL loss, explaining why unsupervised hard-negative methods work</li>
+        <li><strong>Practically effective:</strong> consistent gains on image and graph benchmarks, especially on fine-grained tasks</li>
+        <li>The hardening function $\eta$ provides a flexible knob to control the difficulty of negative samples</li>
+      </ul>
+
+      <h2>References</h2>
+      <ul>
+        <li>Jiang, R., Nguyen, T., Ishwar, P., & Aeron, S. (2024). Supervised Contrastive Learning with Hard Negative Samples. <a href="https://arxiv.org/abs/2209.00078" style="color:var(--accent)">arXiv:2209.00078</a></li>
+        <li>Jiang, R., Nguyen, T., Aeron, S., & Ishwar, P. (2025). Hard-Negative Sampling for Contrastive Learning: Optimal Representation Geometry and Neural- vs Dimensional-Collapse. <em>TMLR</em>. <a href="https://arxiv.org/abs/2311.05139" style="color:var(--accent)">arXiv:2311.05139</a></li>
+        <li>Khosla, P., et al. (2020). Supervised Contrastive Learning. <em>NeurIPS</em>.</li>
+        <li>Robinson, J., et al. (2021). Contrastive Learning with Hard Negative Samples. <em>ICLR</em>.</li>
+      </ul>
+
+      <div class="post-nav">
+        <a href="../pages/blog.html">← All posts</a>
+        <a href="neural-collapse.html">Neural Collapse in CL →</a>
+      </div>
+    </div>
+  </article>
+
+  <script>
+    const saved = sessionStorage.getItem('theme');
+    const hour = new Date().getHours();
+    const isDay = saved !== null ? saved === 'day' : (hour >= 6 && hour < 18);
+    document.documentElement.setAttribute('data-theme', isDay ? 'day' : 'night');
+  </script>
+</body>
+</html>
