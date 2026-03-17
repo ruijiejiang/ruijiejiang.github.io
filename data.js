@@ -25,18 +25,26 @@ const SITE = {
     {
       org: "LinkedIn",
       role: "Senior Machine Learning Engineer",
-      date: "2024 - Present",
+      date: "Mar 2026 - Present",
       tag: "Current",
       tagColor: "blue",
-      desc: "Premium AI team. Working on ads ranking, pricing optimization, domain adaptation, and LLM distillation. Published research on delta knowledge distillation and scalable LLM distillation (LANTERN) while at LinkedIn.",
+      desc: "Premium AI team. LLM distillation and generative recommendation. Rebuilt core Premium Upsell system including ads ranking, pricing, and domain adaptation.",
+    },
+    {
+      org: "LinkedIn",
+      role: "Machine Learning Engineer",
+      date: "May 2024 - Mar 2026",
+      tag: "LinkedIn",
+      tagColor: "blue",
+      desc: "Premium AI team. Working on ads ranking, pricing optimization, domain adaptation, and LLM distillation. Published research on delta knowledge distillation and scalable LLM distillation (LANTERN).",
     },
     {
       org: "Tufts University",
       role: "Ph.D. Researcher — Machine Learning",
-      date: "2018 - 2024",
+      date: "Sep 2018 - May 2024",
       tag: "Ph.D.",
       tagColor: "purple",
-      desc: "Research in contrastive representation learning, optimal transport, and hard negative sampling. Published in TMLR and top ML venues. Developed novel frameworks for representation learning with provable geometric guarantees.",
+      desc: "Research in contrastive representation learning, optimal transport, and hard negative sampling. Published in TMLR and top ML venues. Developed novel frameworks for representation learning with provable geometric guarantees. GPA: 3.8/4.0.",
     },
   ],
 
@@ -45,10 +53,18 @@ const SITE = {
     {
       org: "Tufts University",
       degree: "Ph.D. in Computer Science — Machine Learning",
-      date: "2018 - 2024 · Medford, MA",
+      date: "Sep 2018 - May 2024 · Medford, MA",
       tag: "Ph.D.",
       tagColor: "green",
-      desc: "Specialization in contrastive representation learning, optimal transport, and knowledge distillation. 100+ citations.",
+      desc: "Specialization in contrastive representation learning, optimal transport, and knowledge distillation. 100+ citations. GPA: 3.8/4.0.",
+    },
+    {
+      org: "Tufts University",
+      degree: "B.S. in Computer Science",
+      date: "Aug 2014 - Jun 2018 · Medford, MA",
+      tag: "B.S.",
+      tagColor: "blue",
+      desc: "",
     },
   ],
 
@@ -76,13 +92,13 @@ const SITE = {
     {
       title: "Delta Knowledge Distillation for Large Language Models",
       authors: "<strong>R. Jiang</strong>, et al.",
-      venue: "LinkedIn, 2025",
+      venue: "arXiv, Sep 2025",
       link: "",
     },
     {
       title: "LANTERN: Scalable Distillation of Large Language Models for Job-Person Fit and Explanation",
       authors: "<strong>R. Jiang</strong>, et al.",
-      venue: "LinkedIn, 2025",
+      venue: "LinkedIn",
       link: "",
     },
     {
@@ -155,11 +171,13 @@ const SITE = {
 
   // ---- 新闻动态 ----
   news: [
-    { date: "2025-03", text: "Promoted to Senior Machine Learning Engineer at LinkedIn!" },
-    { date: "2025-01", text: 'Paper "Delta Knowledge Distillation for Large Language Models" released.' },
-    { date: "2024-12", text: 'Received [In]finity & Beyond Award at LinkedIn for organizational impact.' },
+    { date: "2026-03", text: "Promoted to Senior Machine Learning Engineer at LinkedIn!" },
+    { date: "2026-01", text: 'Received [In]finity & Beyond Award at LinkedIn for organization-level impact.' },
+    { date: "2025-11", text: "PhD research reached 100+ academic citations milestone!" },
+    { date: "2025-09", text: 'Paper "Delta Knowledge Distillation for Large Language Models" released on arXiv.' },
+    { date: "2025-04", text: 'Paper "Hard-Negative Sampling for Contrastive Learning" accepted to TMLR!' },
     { date: "2024-05", text: "Completed Ph.D. at Tufts University!" },
-    { date: "2024-01", text: "Joined LinkedIn as Machine Learning Engineer on the Premium AI team." },
+    { date: "2024-05", text: "Joined LinkedIn as Machine Learning Engineer on the Premium AI team." },
     // 添加更多新闻：{ date: "YYYY-MM", text: "..." }
   ],
 
