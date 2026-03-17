@@ -15,7 +15,7 @@ const SITE = {
     "I build scalable ML systems for ads ranking, pricing, domain adaptation, and LLM distillation.",
 
   // ---- 联系方式 ----
-  email: "ruijie.jiang@example.com",         // TODO: 换成真实邮箱
+  email: "ruijie.jiang0210@gmail.com",
   github: "https://github.com/ruijiejiang",
   linkedin: "https://www.linkedin.com/in/ruijie-jiang/",
   scholar: "https://scholar.google.com/citations?user=dXgr0nsAAAAJ&hl=en&oi=ao",
