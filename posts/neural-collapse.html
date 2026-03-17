@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Understanding Neural Collapse in Contrastive Learning — R. Jiang</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+  <style>
+    .post { max-width: 740px; margin: 0 auto; padding: 40px 24px 80px; position: relative; z-index: 1; }
+    .post-back { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); text-decoration: none; font-size: 14px; margin-bottom: 32px; }
+    .post-back:hover { text-decoration: underline; }
+    .post-title { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.25; margin-bottom: 16px; }
+    .post-meta { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .post-tags { display: flex; gap: 6px; margin-bottom: 32px; }
+    .post-tag { font-size: 11px; padding: 2px 8px; background: rgba(59,130,246,0.1); color: var(--accent); border-radius: 4px; font-family: 'JetBrains Mono', monospace; }
+    .post-body { font-size: 15px; line-height: 1.8; color: var(--text); }
+    .post-body h2 { font-size: 22px; font-weight: 600; margin: 40px 0 16px; letter-spacing: -0.01em; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .post-body h3 { font-size: 17px; font-weight: 600; margin: 28px 0 12px; }
+    .post-body p { margin-bottom: 16px; color: var(--text-muted); }
+    .post-body strong { color: var(--text); }
+    .post-body ul, .post-body ol { margin: 0 0 16px 24px; color: var(--text-muted); }
+    .post-body li { margin-bottom: 6px; }
+    .post-body code { font-family: 'JetBrains Mono', monospace; font-size: 13px; background: var(--skill-tag-bg); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; }
+    .post-body blockquote { border-left: 3px solid var(--accent); margin: 20px 0; padding: 12px 20px; background: var(--bg-card); border-radius: 0 8px 8px 0; font-style: italic; color: var(--text-muted); }
+    .post-body .theorem { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin: 20px 0; }
+    .post-body .theorem-label { font-weight: 600; color: var(--accent); margin-bottom: 8px; font-size: 14px; }
+    .post-body .takeaway { background: var(--accent-glow); border: 1px solid var(--accent-border); border-radius: 10px; padding: 20px 24px; margin: 24px 0; }
+    .post-body .takeaway-title { font-weight: 600; color: var(--accent); margin-bottom: 8px; font-size: 14px; }
+    .post-body .fig-caption { text-align: center; font-size: 13px; color: var(--text-muted); font-style: italic; margin-top: 8px; }
+    .post-body .katex-display { margin: 20px 0; overflow-x: auto; }
+    .post-nav { display: flex; justify-content: space-between; margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--border); }
+    .post-nav a { color: var(--accent); text-decoration: none; font-size: 14px; }
+    .post-nav a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="glow-orb glow-1"></div>
+  <div class="glow-orb glow-2"></div>
+
+  <article class="post">
+    <a href="../index.html#blog" class="post-back">← Back to homepage</a>
+
+    <h1 class="post-title">Hard-Negative Sampling for Contrastive Learning: Understanding Neural Collapse vs Dimensional Collapse</h1>
+    <div class="post-meta">
+      <span>Ruijie Jiang</span>
+      <span>·</span>
+      <span>March 15, 2025</span>
+      <span>·</span>
+      <span>12 min read</span>
+    </div>
+    <div class="post-tags">
+      <span class="post-tag">Contrastive Learning</span>
+      <span class="post-tag">Neural Collapse</span>
+      <span class="post-tag">Representation Learning</span>
+      <span class="post-tag">Theory</span>
+    </div>
+
+    <div class="post-body">
+      <p>
+        This post provides a deep dive into our TMLR paper
+        <strong>"Hard-Negative Sampling for Contrastive Learning: Optimal Representation Geometry and Neural- vs Dimensional-Collapse"</strong>
+        (Jiang, Nguyen, Aeron, Ishwar, 2025). We ask a fundamental question:
+        <strong>what is the optimal geometric structure of learned representations in contrastive learning, and how does hard-negative sampling affect it?</strong>
+      </p>
+
+      <h2>1. The Big Picture</h2>
+      <p>
+        Contrastive learning has become the dominant paradigm for self-supervised representation learning. The core idea is simple: pull positive pairs (augmented views of the same data) together while pushing negative pairs apart. But a critical design choice is <strong>how to select negative samples</strong>.
+      </p>
+      <p>
+        Hard-negative sampling — preferentially selecting negatives that are similar to the anchor — is widely used in practice because it speeds up convergence and improves downstream performance. Yet we lack a rigorous theoretical understanding of <strong>why</strong> it works and what geometric structure it induces.
+      </p>
+      <p>
+        This paper bridges that gap by proving that both standard and hard-negative contrastive losses share the same globally optimal geometry: <strong>Neural Collapse (NC)</strong>. But the path to reaching that optimum is very different — and that's where things get interesting.
+      </p>
+
+      <h2>2. What is Neural Collapse?</h2>
+      <p>
+        Neural Collapse, first observed in the supervised classification setting (Papyan et al., 2020), describes a striking phenomenon where learned representations converge to a highly symmetric structure as training progresses:
+      </p>
+      <ul>
+        <li><strong>Within-class variability vanishes</strong> — all samples from the same class map to the same point</li>
+        <li><strong>Class means form an Equiangular Tight Frame (ETF)</strong> — they are maximally and equally separated on the unit hypersphere</li>
+        <li><strong>The inner product between any two distinct class means is exactly</strong> $-\frac{1}{C-1}$, where $C$ is the number of classes</li>
+      </ul>
+      <p>
+        Think of it as placing $C$ points on a sphere so they're as far apart from each other as possible, with every pair having equal angular separation. For $C=3$ this gives a regular triangle; for $C=4$, a regular tetrahedron.
+      </p>
+
+      <div class="takeaway">
+        <div class="takeaway-title">Key Intuition</div>
+        <p>Neural Collapse is the "most spread out" configuration possible. It maximizes inter-class separation while maintaining perfect symmetry — exactly what we'd want for good representations.</p>
+      </div>
+
+      <h2>3. The Theoretical Framework</h2>
+
+      <h3>3.1 Generalized Contrastive Loss</h3>
+      <p>
+        Rather than analyzing only InfoNCE, the paper works with a <strong>general family of contrastive losses</strong>:
+      </p>
+
+      $$\ell_k(z, z^+, z_1^-, \ldots, z_k^-) = \psi_k\big(z^\top(z_1^- - z^+), \ldots, z^\top(z_k^- - z^+)\big)$$
+
+      <p>
+        where $\psi_k$ is any convex, argument-wise non-decreasing function. This encompasses InfoNCE, triplet loss, and many other common objectives. The key property: the loss penalizes situations where negatives are closer to the anchor than positives.
+      </p>
+
+      <h3>3.2 Hard-Negative Sampling</h3>
+      <p>
+        Standard contrastive learning draws negatives uniformly (or from the class-conditional distribution). Hard-negative sampling <strong>reweights</strong> the distribution to favor negatives that are more similar to the anchor:
+      </p>
+
+      $$p_{\text{HSCL}}^-(x_1^-, \ldots, x_k^- \mid x, y, f) = \frac{\eta\big(f(x)^\top f(x_1^-), \ldots, f(x)^\top f(x_k^-)\big)}{\gamma(x,y,f)} \cdot \prod_{i=1}^{k} p_{\text{SCL}}^-(x_i^- \mid y)$$
+
+      <p>
+        The <strong>hardening function</strong> $\eta$ upweights negatives whose representations are more aligned with the anchor. This makes the contrastive task harder, forcing the encoder to learn more discriminative features.
+      </p>
+
+      <h2>4. Main Results</h2>
+
+      <div class="theorem">
+        <div class="theorem-label">Theorem 1 — Hard losses lower-bound standard losses</div>
+        <p>For all representation functions $f$:</p>
+        $$\mathcal{L}_{\text{HSCL}}^{(k)}(f) \geq \mathcal{L}_{\text{SCL}}^{(k)}(f) \quad \text{and} \quad \mathcal{L}_{\text{HUCL}}^{(k)}(f) \geq \mathcal{L}_{\text{UCL}}^{(k)}(f)$$
+        <p>Hard-negative contrastive losses are always <strong>at least as large</strong> as their standard counterparts for any encoder. This is proved via the <strong>Harris inequality</strong> (a multivariate association inequality).</p>
+      </div>
+
+      <p>
+        This result is intuitive: hard negatives make the task harder, so the loss must be higher. But the proof is non-trivial — it requires showing a positive association property between the hardening function and the loss, which the authors establish via the Harris comparison inequality.
+      </p>
+
+      <div class="theorem">
+        <div class="theorem-label">Theorem 2 — SCL is minimized at Neural Collapse</div>
+        <p>The SCL loss achieves its global minimum if and only if the representations satisfy Neural Collapse:</p>
+        $$\mu_j^\top \mu_\ell = -\frac{1}{C-1} \quad \forall\ j \neq \ell$$
+        <p>where $\mu_j$ are the class mean representations. This holds for any loss function in the general family — not just InfoNCE.</p>
+      </div>
+
+      <div class="theorem">
+        <div class="theorem-label">Theorem 3 — UCL also converges to NC</div>
+        <p>Unsupervised contrastive losses are also minimized by NC geometry, provided the embedding dimension $d \geq C - 1$ (where $C$ is the number of latent classes). This extends NC theory beyond the supervised setting.</p>
+      </div>
+
+      <div class="takeaway">
+        <div class="takeaway-title">Why This Matters</div>
+        <p>Both standard and hard variants of contrastive learning share the same optimal geometry (NC). But Theorem 1 tells us hard-negative losses create <strong>steeper gradients</strong> away from the optimum — which intuitively explains why hard-negative sampling speeds up convergence in practice.</p>
+      </div>
+
+      <h2>5. Neural Collapse vs Dimensional Collapse</h2>
+      <p>
+        The theory predicts NC as the optimum — but can SGD actually reach it? This is where the paper's empirical contribution shines. The experiments reveal a <strong>critical dichotomy</strong>:
+      </p>
+
+      <h3>Dimensional Collapse (Bad)</h3>
+      <p>
+        Without hard-negative sampling or feature normalization, learned representations suffer from <strong>Dimensional Collapse (DC)</strong> — the representation matrix becomes low-rank, meaning the encoder only uses a small fraction of the available dimensions. Information is lost, and downstream performance degrades.
+      </p>
+
+      <h3>Neural Collapse (Good)</h3>
+      <p>
+        With hard-negative sampling AND feature normalization (projecting representations to the unit sphere), the representations converge to <strong>Neural Collapse</strong> — the theoretically optimal geometry. Both ingredients are necessary:
+      </p>
+
+      <ul>
+        <li><strong>Hard negatives alone</strong> — not sufficient; DC can still occur</li>
+        <li><strong>Normalization alone</strong> — not sufficient; representations may not converge to ETF</li>
+        <li><strong>Hard negatives + normalization</strong> — consistently achieves NC geometry</li>
+      </ul>
+
+      <p>
+        This is validated across synthetic data and real datasets (CIFAR-10, etc.) with varying batch sizes (256, 512, 2048), different hardening functions, and multiple optimization settings.
+      </p>
+
+      <h2>6. Technical Highlights</h2>
+
+      <h3>Cleaner Proofs</h3>
+      <p>
+        A notable methodological contribution: previous work proving NC optimality for contrastive learning required <strong>conditional independence</strong> between augmented views given the class. This paper <strong>removes that assumption</strong>, providing simpler, more transparent proofs that apply to realistic augmentation pipelines where the positive pair $(x, x^+)$ can be arbitrarily dependent.
+      </p>
+
+      <h3>Practical Batched Losses</h3>
+      <p>
+        The theoretical guarantees extend to <strong>batched empirical losses</strong> — the actual objectives minimized in practice. This bridges the gap between the idealized infinite-sample theory and real mini-batch training.
+      </p>
+
+      <h2>7. Key Takeaways</h2>
+
+      <div class="takeaway">
+        <div class="takeaway-title">Summary</div>
+        <ul>
+          <li><strong>Neural Collapse is the universal optimum</strong> for both supervised and unsupervised contrastive learning, with or without hard negatives, for a general family of loss functions.</li>
+          <li><strong>Hard-negative sampling creates higher losses</strong> (steeper optimization landscape), which explains its empirical benefit — stronger gradients push representations toward NC faster.</li>
+          <li><strong>Feature normalization is critical</strong> — without it, training suffers from Dimensional Collapse regardless of hard-negative sampling.</li>
+          <li><strong>The combination of hard negatives + normalization</strong> is key to achieving the theoretical optimum in practice.</li>
+          <li>These results hold for <strong>any convex, monotone contrastive loss</strong> — not just InfoNCE — making them broadly applicable.</li>
+        </ul>
+      </div>
+
+      <h2>8. Open Questions</h2>
+      <p>
+        Several interesting directions remain:
+      </p>
+      <ul>
+        <li>Can we characterize the <strong>convergence rate</strong> to NC as a function of negative hardness?</li>
+        <li>How does the optimal hardening schedule <strong>change during training</strong>?</li>
+        <li>What is the relationship between NC geometry and <strong>downstream transfer learning</strong> performance?</li>
+        <li>Can these results extend to <strong>non-contrastive</strong> self-supervised methods (BYOL, VICReg)?</li>
+      </ul>
+
+      <h2>References</h2>
+      <ul>
+        <li>Jiang, R., Nguyen, T., Aeron, S., & Ishwar, P. (2025). Hard-Negative Sampling for Contrastive Learning: Optimal Representation Geometry and Neural- vs Dimensional-Collapse. <em>TMLR</em>. <a href="https://arxiv.org/abs/2311.05139" style="color:var(--accent)">arXiv:2311.05139</a></li>
+        <li>Papyan, V., Han, X. Y., & Donoho, D. L. (2020). Prevalence of Neural Collapse during the terminal phase of deep learning training. <em>PNAS</em>.</li>
+        <li>Chen, T., Kornblith, S., Norouzi, M., & Hinton, G. (2020). A Simple Framework for Contrastive Learning of Visual Representations (SimCLR). <em>ICML</em>.</li>
+      </ul>
+
+      <div class="post-nav">
+        <a href="../index.html#blog">← All posts</a>
+        <span></span>
+      </div>
+    </div>
+  </article>
+
+  <script>
+    // Apply theme from parent page
+    const saved = sessionStorage.getItem('theme');
+    const hour = new Date().getHours();
+    const isDay = saved !== null ? saved === 'day' : (hour >= 6 && hour < 18);
+    document.documentElement.setAttribute('data-theme', isDay ? 'day' : 'night');
+  </script>
+</body>
+</html>

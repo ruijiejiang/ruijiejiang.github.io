@@ -88,8 +88,8 @@ const SITE = {
     {
       title: "Hard-Negative Sampling for Contrastive Learning: Optimal Representation Geometry and Neural-vs Dimensional-Collapse",
       authors: "<strong>R. Jiang</strong>, et al.",
-      venue: "TMLR",
-      link: "",
+      venue: "TMLR, 2025",
+      link: "https://arxiv.org/abs/2311.05139",
     },
     {
       title: "On Neural Collapse in Contrastive Learning with Imbalanced Datasets",
@@ -169,11 +169,11 @@ const SITE = {
   blogPosts: [
     // 示例条目 — 替换成你自己的读论文笔记
     {
-      title: "Understanding Neural Collapse in Contrastive Learning",
+      title: "Hard-Negative Sampling for Contrastive Learning: Neural Collapse vs Dimensional Collapse",
       date: "2025-03-15",
-      tags: ["Contrastive Learning", "Theory"],
-      summary: "A deep dive into why neural collapse occurs in contrastive learning and its implications for representation quality in imbalanced datasets.",
-      link: "posts/neural-collapse.html", // 指向详细博客页面（可选）
+      tags: ["Contrastive Learning", "Neural Collapse", "Theory", "TMLR"],
+      summary: "A deep dive into our TMLR paper: why contrastive losses are universally minimized by Neural Collapse geometry, how hard-negative sampling creates steeper gradients toward the optimum, and why feature normalization is critical to avoid Dimensional Collapse.",
+      link: "posts/neural-collapse.html",
     },
     {
       title: "Knowledge Distillation for LLMs: A Survey",
