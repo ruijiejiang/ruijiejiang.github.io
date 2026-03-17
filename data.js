@@ -59,12 +59,12 @@ const SITE = {
       desc: "Specialization in contrastive representation learning, optimal transport, and knowledge distillation. 100+ citations. GPA: 3.8/4.0.",
     },
     {
-      org: "Tufts University",
-      degree: "B.S. in Computer Science",
-      date: "Aug 2014 - Jun 2018 · Medford, MA",
+      org: "Nanjing Normal University (南京师范大学)",
+      degree: "B.S. in Physics",
+      date: "Aug 2014 - Jun 2018 · Nanjing, China",
       tag: "B.S.",
       tagColor: "blue",
-      desc: "",
+      desc: "National Outstanding Graduate · Outstanding Bachelor's Thesis Award · Principal Investigator, National College Student Innovation Program · Outstanding Student Leader · Vice President, University Student Union",
     },
   ],
 
@@ -172,10 +172,11 @@ const SITE = {
   // ---- 新闻动态 ----
   news: [
     { date: "2026-03", text: "Promoted to Senior Machine Learning Engineer at LinkedIn!" },
-    { date: "2026-01", text: 'Received [In]finity & Beyond Award at LinkedIn for organization-level impact.' },
+    { date: "2026-02", text: 'Received [In]finity & Beyond Award at LinkedIn Premium All Hands — recognized for organization-level impact through execution rigor.' },
     { date: "2025-11", text: "PhD research reached 100+ academic citations milestone!" },
-    { date: "2025-09", text: 'Paper "Delta Knowledge Distillation for Large Language Models" released on arXiv.' },
-    { date: "2025-04", text: 'Paper "Hard-Negative Sampling for Contrastive Learning" accepted to TMLR!' },
+    { date: "2025-10", text: 'Paper "Delta Knowledge Distillation for Large Language Models" released on arXiv.' },
+    { date: "2025-06", text: "Celebrated two-year anniversary of my wife's PhD — reflecting on the journey together." },
+    { date: "2025-04", text: 'Paper "Hard-Negative Sampling for Contrastive Learning" accepted to TMLR! Reviewer: "very nice and neat unifying theory."' },
     { date: "2024-05", text: "Completed Ph.D. at Tufts University!" },
     { date: "2024-05", text: "Joined LinkedIn as Machine Learning Engineer on the Premium AI team." },
     // 添加更多新闻：{ date: "YYYY-MM", text: "..." }
