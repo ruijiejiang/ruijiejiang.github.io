@@ -33,7 +33,7 @@ const SITE = {
     {
       org: "LinkedIn",
       role: "Machine Learning Engineer",
-      date: "May 2024 - Mar 2026",
+      date: "Oct 2024 - Mar 2026",
       tag: "LinkedIn",
       tagColor: "blue",
       desc: "Premium AI team. Working on ads ranking, pricing optimization, domain adaptation, and LLM distillation. Published research on delta knowledge distillation and scalable LLM distillation (LANTERN).",
@@ -178,7 +178,7 @@ const SITE = {
     { date: "2025-06", text: "Celebrated two-year anniversary of my wife's PhD — reflecting on the journey together." },
     { date: "2025-04", text: 'Paper "Hard-Negative Sampling for Contrastive Learning" accepted to TMLR! Reviewer: "very nice and neat unifying theory."' },
     { date: "2024-05", text: "Completed Ph.D. at Tufts University!" },
-    { date: "2024-05", text: "Joined LinkedIn as Machine Learning Engineer on the Premium AI team." },
+    { date: "2024-10", text: "Joined LinkedIn as Machine Learning Engineer on the Premium AI team." },
     // 添加更多新闻：{ date: "YYYY-MM", text: "..." }
   ],
 
