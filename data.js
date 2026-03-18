@@ -91,7 +91,7 @@ const SITE = {
   publications: [
     {
       title: "Delta Knowledge Distillation for Large Language Models",
-      authors: "<strong>R. Jiang</strong>, et al.",
+      authors: "Y. Cao, Y. Kang, Z. Xing, <strong>R. Jiang</strong>",
       venue: "arXiv, 2025",
       link: "https://arxiv.org/abs/2509.14526",
     },
@@ -177,8 +177,8 @@ const SITE = {
     { date: "2025-10", text: 'Paper "Delta Knowledge Distillation for Large Language Models" released on arXiv.' },
     { date: "2025-06", text: "Celebrated two-year anniversary of my wife's PhD — reflecting on the journey together." },
     { date: "2025-04", text: 'Paper "Hard-Negative Sampling for Contrastive Learning" accepted to TMLR! Reviewer: "very nice and neat unifying theory."' },
-    { date: "2024-05", text: "Completed Ph.D. at Tufts University!" },
     { date: "2024-10", text: "Joined LinkedIn as Machine Learning Engineer on the Premium AI team." },
+    { date: "2024-05", text: "Completed Ph.D. at Tufts University!" },
     // 添加更多新闻：{ date: "YYYY-MM", text: "..." }
   ],
 
